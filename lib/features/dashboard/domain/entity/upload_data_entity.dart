@@ -1,3 +1,4 @@
+/// this is the entity model for the data we are fetching
 class UploadDataEntity {
   final int albumId;
   final int id;

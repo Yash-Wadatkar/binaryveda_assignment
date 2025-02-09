@@ -3,6 +3,7 @@ import 'package:dashboard_ui_assignment/core/theme/app_color_pallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+/// this the widget to display custom app bar
 class CustomAppBarWidget extends StatelessWidget
     implements PreferredSizeWidget {
   const CustomAppBarWidget({super.key});

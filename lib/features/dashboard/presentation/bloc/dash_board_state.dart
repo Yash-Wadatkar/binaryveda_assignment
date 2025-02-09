@@ -13,11 +13,22 @@ final class DashBoardInitial extends DashBoardState {}
 final class DashBoardLoadingState extends DashBoardState {}
 
 /// error state of the dashboard
-final class DashBoardFailureState extends DashBoardListnerState {}
+final class DashBoardFailureState extends DashBoardListnerState {
+  final String errorMessage;
+
+  DashBoardFailureState({required this.errorMessage});
+}
 
 /// success state of the dashboard (state to show fetch image )
 final class DashBoardDataSuccessfullyFetchedState extends DashBoardState {
   final List<UploadDataEntity> uploadDataEntity;
 
   DashBoardDataSuccessfullyFetchedState({required this.uploadDataEntity});
+}
+
+/// state to toggle tababr
+final class ToggleTabBarState extends DashBoardState {
+  final int index;
+
+  ToggleTabBarState({required this.index});
 }

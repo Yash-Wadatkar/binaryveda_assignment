@@ -3,6 +3,7 @@ import 'package:dashboard_ui_assignment/core/theme/app_color_pallet.dart';
 import 'package:dashboard_ui_assignment/core/theme/app_font.dart';
 import 'package:flutter/material.dart';
 
+/// this is the wiget to display the color tab pallete on the screen
 class ColorPalletBarWidget extends StatelessWidget {
   const ColorPalletBarWidget({super.key});
 

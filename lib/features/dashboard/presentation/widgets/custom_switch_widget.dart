@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// this is the widget to display custom toggle switch
 class CustomSwitch extends StatefulWidget {
   final bool initialValue;
   final ValueChanged<bool>? onChanged;
@@ -29,6 +30,12 @@ class _CustomSwitchState extends State<CustomSwitch> {
   void initState() {
     super.initState();
     _isOn = ValueNotifier(widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    _isOn.dispose();
+    super.dispose();
   }
 
   void _toggleSwitch() {
@@ -64,18 +71,6 @@ class _CustomSwitchState extends State<CustomSwitch> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white,
-                    boxShadow: [
-                      // BoxShadow(
-                      //   color: Colors.black26,
-                      //   blurRadius: 2,
-                      //   offset: Offset(1, 1),
-                      // ),
-                      // BoxShadow(
-                      //   color: Colors.grey,
-                      //   blurRadius: 2,
-                      //   offset: Offset(0, 1),
-                      // ),
-                    ],
                   ),
                   child: Center(
                       child: Container(
@@ -92,11 +87,5 @@ class _CustomSwitchState extends State<CustomSwitch> {
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _isOn.dispose();
-    super.dispose();
   }
 }

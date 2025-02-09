@@ -9,6 +9,7 @@ import 'package:dashboard_ui_assignment/features/dashboard/presentation/bloc/das
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/color_pallet_bar_widget.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/custom_app_bar_widget.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/custom_switch_widget.dart';
+import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/show_snackbar_widget.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/social_media_icons_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +24,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
-  late DashBoardBloc dashBoardBloc;
+  late DashBoardBloc tabBarContentBloc;
+  late DashBoardBloc tabBarBloc;
   late TabController tabController;
 
   @override
@@ -31,221 +33,222 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.initState();
     tabController = TabController(length: 3, vsync: this);
 
-    dashBoardBloc = DashBoardBloc();
-    dashBoardBloc.add(LoadDashBoardPhotosEvent());
+    tabBarContentBloc = DashBoardBloc();
+    tabBarBloc = DashBoardBloc();
+    tabBarContentBloc.add(LoadDashBoardPhotosEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColorPallet.whiteColor,
-      appBar:
-          CustomAppBarWidget(), // Ensure this widget is implemented correctly
-      body: BlocConsumer<DashBoardBloc, DashBoardState>(
-        buildWhen: (previous, current) => current is! DashBoardListnerState,
-        listenWhen: (previous, current) => current is DashBoardListnerState,
-        listener: (context, state) {},
-        builder: (context, state) {
-          switch (state.runtimeType) {
-            case const (DashBoardInitial):
-              return SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Column(
+        backgroundColor: AppColorPallet.whiteColor,
+        appBar:
+
+            /// custom app bar widget
+            CustomAppBarWidget(),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 30, bottom: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 30, bottom: 25),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: SvgPicture.asset(AppIcons.icUploadIcon),
-                                ),
-                                Text(
-                                  AppStrings.upload,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.barlowCondensed(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                    color: AppColorPallet.purpleColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                Image.asset(
-                                  AppImages.profilePic,
-                                  height: 127,
-                                  width: 127,
-                                ),
-                                Text(
-                                  AppStrings.uerName, // Fixed typo
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.barlow(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: SvgPicture.asset(AppIcons.icEditIcon),
-                                ),
-                                Text(
-                                  AppStrings.edit,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppFonts.barlowCondensed(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w300,
-                                    color: AppColorPallet.purpleColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              AppStrings.myDashboard,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppFonts.barlowCondensed(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                            CustomSwitch(
-                              initialValue: true,
-                              onChanged: (value) {},
-                            )
-                          ],
-                        ),
-                      ),
-                      Divider(thickness: 2, color: AppColorPallet.dividerColor),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 9, bottom: 11),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildStatColumn(
-                                AppStrings.noOfFollowers, AppStrings.followers),
-                            _buildStatColumn(
-                                AppStrings.noOfArtWork, AppStrings.artworks),
-                            _buildStatColumn(AppStrings.noOfExibition,
-                                AppStrings.exhibitions),
-                          ],
-                        ),
-                      ),
-                      Divider(thickness: 2, color: AppColorPallet.dividerColor),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      _profileButton(
+                          icon: AppIcons.icUploadIcon, text: AppStrings.upload),
+                      Column(
                         children: [
-                          SocialMediaIconsWidget(
-                            icon: AppIcons.icFavoriteIcon,
-                            numbers: AppStrings.noOfLikes,
+                          Image.asset(
+                            AppImages.profilePic,
+                            height: 127,
+                            width: 127,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: SocialMediaIconsWidget(
-                              icon: AppIcons.icShareIcon,
-                              numbers: AppStrings.noOfShares,
+                          Text(
+                            AppStrings.uerName, // Fixed typo
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.barlow(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w300,
                             ),
-                          ),
-                          SocialMediaIconsWidget(
-                            icon: AppIcons.icBluetoothIcon,
-                            numbers: AppStrings.noOfBluetoothShares,
                           ),
                         ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 21, bottom: 24),
-                        child: ColorPalletBarWidget(),
-                      ),
-                      TabBar(
-                        labelStyle: AppFonts.barlow(
-                            fontWeight: FontWeight.w500, fontSize: 14),
-                        indicatorWeight: 1,
-                        indicatorPadding: EdgeInsets.symmetric(vertical: 5),
-                        labelColor: Colors.black,
-                        indicator: UnderlineTabIndicator(
-                            borderSide: BorderSide(
-                              color: AppColorPallet.indicatorColor,
-                              width: 2,
-                            ), // Set thickness & color
-                            insets: EdgeInsets.symmetric(horizontal: -10)),
-
-                        unselectedLabelColor:
-                            AppColorPallet.unselectedTabTextColor,
-                        dividerColor: Colors.transparent,
-
-                        controller: tabController, // Add the TabController
-                        tabs: [
-                          _buildTab(
-                            index: 0,
-                            text: AppStrings.uploads,
-                            icon: AppIcons.icUploadIcon,
-                          ),
-                          _buildTab(
-                            index: 1,
-                            text: AppStrings.exhibitions,
-                            icon: AppIcons.icExibitionIcon,
-                          ),
-                          _buildTab(
-                            index: 2,
-                            text: AppStrings.revenue,
-                            icon: AppIcons.icRevenueIcon,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.sizeOf(context).height * 0.5,
-                        child: TabBarView(
-                          controller: tabController,
-                          children: [
-                            BlocBuilder<DashBoardBloc, DashBoardState>(
-                              bloc: dashBoardBloc,
-                              buildWhen: (previous, current) => current
-                                  is DashBoardDataSuccessfullyFetchedState,
-                              builder: (context, state) {
-                                switch (state.runtimeType) {
-                                  case const (DashBoardDataSuccessfullyFetchedState):
-                                    final dashBoardDataSuccessState = state
-                                        as DashBoardDataSuccessfullyFetchedState;
-                                    return _buildUploadsContent(
-                                        uploadData: dashBoardDataSuccessState
-                                            .uploadDataEntity);
-
-                                  default:
-                                    return SizedBox();
-                                }
-                              },
-                            ),
-                            _buildExhibitionsContent(),
-                            _buildRevenueContent(),
-                          ],
-                        ),
-                      ),
+                      _profileButton(
+                          icon: AppIcons.icEditIcon, text: AppStrings.edit),
                     ],
                   ),
                 ),
-              );
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppStrings.myDashboard,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppFonts.barlowCondensed(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                      CustomSwitch(
+                        initialValue: true,
+                        onChanged: (value) {},
+                      )
+                    ],
+                  ),
+                ),
+                Divider(thickness: 2, color: AppColorPallet.dividerColor),
+                Padding(
+                  padding: const EdgeInsets.only(top: 9, bottom: 11),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildStatColumn(
+                          AppStrings.noOfFollowers, AppStrings.followers),
+                      _buildStatColumn(
+                          AppStrings.noOfArtWork, AppStrings.artworks),
+                      _buildStatColumn(
+                          AppStrings.noOfExibition, AppStrings.exhibitions),
+                    ],
+                  ),
+                ),
+                Divider(thickness: 2, color: AppColorPallet.dividerColor),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SocialMediaIconsWidget(
+                      icon: AppIcons.icFavoriteIcon,
+                      numbers: AppStrings.noOfLikes,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: SocialMediaIconsWidget(
+                        icon: AppIcons.icShareIcon,
+                        numbers: AppStrings.noOfShares,
+                      ),
+                    ),
+                    SocialMediaIconsWidget(
+                      icon: AppIcons.icBluetoothIcon,
+                      numbers: AppStrings.noOfBluetoothShares,
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 21, bottom: 24),
+                  child: ColorPalletBarWidget(),
+                ),
+                BlocBuilder<DashBoardBloc, DashBoardState>(
+                  bloc: tabBarBloc,
+                  builder: (context, state) {
+                    final selectedIndex =
+                        (state is ToggleTabBarState) ? state.index : 0;
 
-            default:
-              return Center(child: Text('Oops something went wrong '));
-          }
-        },
-      ),
+                    return TabBar(
+                      onTap: (index) {
+                        tabBarBloc.add(ToggleTabBarEvent(index: index));
+                      },
+                      labelStyle: AppFonts.barlow(
+                          fontWeight: FontWeight.w500, fontSize: 14),
+                      indicatorWeight: 1,
+                      indicatorPadding: EdgeInsets.symmetric(vertical: 5),
+                      labelColor: Colors.black,
+                      indicator: UnderlineTabIndicator(
+                        borderSide: BorderSide(
+                          color: AppColorPallet.indicatorColor,
+                          width: 2,
+                        ),
+                        insets: EdgeInsets.symmetric(horizontal: -10),
+                      ),
+                      unselectedLabelColor:
+                          AppColorPallet.unselectedTabTextColor,
+                      dividerColor: Colors.transparent,
+                      controller: tabController,
+                      tabs: [
+                        _buildTab(
+                          index: 0,
+                          selectedIndex: selectedIndex,
+                          text: AppStrings.uploads,
+                          icon: AppIcons.icUploadIcon,
+                        ),
+                        _buildTab(
+                          index: 1,
+                          selectedIndex: selectedIndex,
+                          text: AppStrings.exhibitions,
+                          icon: AppIcons.icExibitionIcon,
+                        ),
+                        _buildTab(
+                          index: 2,
+                          selectedIndex: selectedIndex,
+                          text: AppStrings.revenue,
+                          icon: AppIcons.icRevenueIcon,
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.5,
+                  child: TabBarView(
+                    controller: tabController,
+                    children: [
+                      BlocConsumer<DashBoardBloc, DashBoardState>(
+                        bloc: tabBarContentBloc,
+                        buildWhen: (previous, current) =>
+                            current is DashBoardDataSuccessfullyFetchedState,
+                        builder: (context, state) {
+                          switch (state.runtimeType) {
+                            case const (DashBoardDataSuccessfullyFetchedState):
+                              final dashBoardDataSuccessState = state
+                                  as DashBoardDataSuccessfullyFetchedState;
+                              return _buildUploadsContent(
+                                  uploadData: dashBoardDataSuccessState
+                                      .uploadDataEntity);
+
+                            default:
+                              return SizedBox();
+                          }
+                        },
+                        listener: (BuildContext context, state) {
+                          switch (state.runtimeType) {
+                            case const (DashBoardFailureState):
+                              final errorMessage =
+                                  (state as DashBoardFailureState).errorMessage;
+                              showSnackBAR(context, errorMessage);
+                          }
+                        },
+                      ),
+                      _buildExhibitionsContent(),
+                      _buildRevenueContent(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  /// Widget for displaying buttons on profile section
+  Widget _profileButton({required String icon, required String text}) {
+    return Column(
+      children: [
+        IconButton(
+          onPressed: () {},
+          icon: SvgPicture.asset(icon),
+        ),
+        Text(
+          text,
+          overflow: TextOverflow.ellipsis,
+          style: AppFonts.barlowCondensed(
+            fontSize: 14,
+            fontWeight: FontWeight.w300,
+            color: AppColorPallet.purpleColor,
+          ),
+        ),
+      ],
     );
   }
 
@@ -269,8 +272,11 @@ class _DashboardScreenState extends State<DashboardScreen>
               Center(child: CircularProgressIndicator()),
           errorWidget: (context, url, error) {
             return Container(
-                decoration: BoxDecoration(color: Colors.grey),
-                child: Icon(Icons.error));
+                decoration: BoxDecoration(color: AppColorPallet.dividerColor),
+                child: Icon(
+                  Icons.error_outline,
+                  color: Colors.grey,
+                ));
           },
           fit: BoxFit.cover,
         );
@@ -297,14 +303,18 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   /// widget for displaying the tabs of tabbar
-  Widget _buildTab(
-      {required int index, required String text, required String icon}) {
+  Widget _buildTab({
+    required int index,
+    required int selectedIndex,
+    required String text,
+    required String icon,
+  }) {
     return Tab(
       text: text,
       icon: SvgPicture.asset(
         icon,
         // ignore: deprecated_member_use
-        color: tabController.index == index
+        color: selectedIndex == index
             ? Colors.black
             : AppColorPallet.unselectedTabTextColor,
       ),

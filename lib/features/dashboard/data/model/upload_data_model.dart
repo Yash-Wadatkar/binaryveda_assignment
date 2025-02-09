@@ -2,6 +2,7 @@ import 'package:dart_mappable/dart_mappable.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/domain/entity/upload_data_entity.dart';
 part 'upload_data_model.mapper.dart';
 
+/// A model that represents the data we are fetching from api
 @MappableClass()
 class UploadDataModel extends UploadDataEntity with UploadDataModelMappable {
   final int albumId;

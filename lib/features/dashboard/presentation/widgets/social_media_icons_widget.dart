@@ -2,6 +2,7 @@ import 'package:dashboard_ui_assignment/core/theme/app_font.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+/// widget to show social media icons on the screen
 class SocialMediaIconsWidget extends StatelessWidget {
   final String icon;
   final String numbers;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// this file contains all the color required in the app
 class AppColorPallet {
   static const Color redColor = Color(0xffD90034);
   static const Color whiteColor = Colors.white;

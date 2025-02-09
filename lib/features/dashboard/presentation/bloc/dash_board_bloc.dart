@@ -13,6 +13,9 @@ class DashBoardBloc extends Bloc<DashBoardEvent, DashBoardState> {
   DashBoardBloc() : super(DashBoardInitial()) {
     /// event handler to  load upload images on dash board
     on<LoadDashBoardPhotosEvent>(loadDashBoardPhotosEvent);
+
+    /// event handler to toggle tabbar
+    on<ToggleTabBarEvent>(toggleTabBarEvent);
   }
 
   FutureOr<void> loadDashBoardPhotosEvent(
@@ -23,14 +26,16 @@ class DashBoardBloc extends Bloc<DashBoardEvent, DashBoardState> {
     data.fold(
       (l) {
         /// if failure retrun failure state
-        emit(DashBoardFailureState());
+        emit(DashBoardFailureState(errorMessage: l.message));
       },
       (r) {
-        print(r);
-
         /// if success retrun success state
         emit(DashBoardDataSuccessfullyFetchedState(uploadDataEntity: r));
       },
     );
+  }
+
+  FutureOr<void> toggleTabBarEvent(ToggleTabBarEvent event, Emitter emit) {
+    emit(ToggleTabBarState(index: event.index));
   }
 }
