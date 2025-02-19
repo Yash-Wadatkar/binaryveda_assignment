@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 
 /// this is the file for dependency injection
 GetIt serviceLocator = GetIt.instance;
+
 void initDependencies() {
   // Register the instance of data sources
   serviceLocator

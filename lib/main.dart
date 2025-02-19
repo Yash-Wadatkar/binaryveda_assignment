@@ -1,4 +1,5 @@
 import 'package:dashboard_ui_assignment/core/dependency_injection_container/dependency_injection_container.dart';
+import 'package:dashboard_ui_assignment/core/dependency_injection_container/di_injectable.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/bloc/dash_board_bloc.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/pages/dashboard_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   /// Initialize the dependency injection container
-  initDependencies();
+  //initDependencies();
+  configureDependencies();
 
-  runApp(BlocProvider(create: (context) => DashBoardBloc(), child: MyApp()));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

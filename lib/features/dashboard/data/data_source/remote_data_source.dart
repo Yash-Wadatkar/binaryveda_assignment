@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dashboard_ui_assignment/core/utils/server_exception.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/data/model/upload_data_model.dart';
 import 'package:dio/dio.dart';
+import 'package:injectable/injectable.dart';
 
 /// interface class for data source
 abstract interface class RemoteDataSource {
@@ -10,6 +11,7 @@ abstract interface class RemoteDataSource {
 }
 
 /// implementation of remote data source class
+@LazySingleton(as: RemoteDataSource)
 class RemoteDataSourceImpl implements RemoteDataSource {
   /// instance of dio
   Dio dio = Dio(

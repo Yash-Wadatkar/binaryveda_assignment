@@ -2,10 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dashboard_ui_assignment/core/constants/app_icons.dart';
 import 'package:dashboard_ui_assignment/core/constants/app_images.dart';
 import 'package:dashboard_ui_assignment/core/constants/app_strings.dart';
+import 'package:dashboard_ui_assignment/core/dependency_injection_container/di_injectable.dart';
 import 'package:dashboard_ui_assignment/core/theme/app_color_pallet.dart';
 import 'package:dashboard_ui_assignment/core/theme/app_font.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/domain/entity/upload_data_entity.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/bloc/dash_board_bloc.dart';
+import 'package:dashboard_ui_assignment/features/dashboard/presentation/cubit/dash_board_cubit.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/color_pallet_bar_widget.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/custom_app_bar_widget.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/presentation/widgets/custom_switch_widget.dart';
@@ -26,26 +28,27 @@ class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late DashBoardBloc tabBarContentBloc;
   late DashBoardBloc tabBarBloc;
+  late DashBoardCubit tabBarCubit;
+  late DashBoardCubit tabBarContentCubit;
   late TabController tabController;
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
-
-    tabBarContentBloc = DashBoardBloc();
-    tabBarBloc = DashBoardBloc();
-    tabBarContentBloc.add(LoadDashBoardPhotosEvent());
+    tabBarCubit = getIt<DashBoardCubit>();
+    tabBarContentCubit = getIt<DashBoardCubit>();
+    // tabBarContentBloc = DashBoardBloc();
+    //  tabBarBloc = DashBoardBloc();
+    tabBarContentCubit.loadDashBoardPhotos();
+    // tabBarContentBloc.add(LoadDashBoardPhotosEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColorPallet.whiteColor,
-        appBar:
-
-            /// custom app bar widget
-            CustomAppBarWidget(),
+        appBar: CustomAppBarWidget(),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -140,15 +143,22 @@ class _DashboardScreenState extends State<DashboardScreen>
                   padding: const EdgeInsets.only(top: 21, bottom: 24),
                   child: ColorPalletBarWidget(),
                 ),
-                BlocBuilder<DashBoardBloc, DashBoardState>(
-                  bloc: tabBarBloc,
+                BlocBuilder<DashBoardCubit, DashBoardCubitState>(
+                  bloc: tabBarCubit,
                   builder: (context, state) {
-                    final selectedIndex =
-                        (state is ToggleTabBarState) ? state.index : 0;
+                    final selectedIndex = state.maybeWhen(
+                      /// If state is ToggleTabBar, use its index
+                      toggleTabBar: (index) => index,
+
+                      /// Default to 0 if state is something else
+                      orElse: () => 0,
+                    );
+
+                    //   (state is ToggleTabBarState) ? state.index : 0;
 
                     return TabBar(
                       onTap: (index) {
-                        tabBarBloc.add(ToggleTabBarEvent(index: index));
+                        tabBarCubit.toggleTabBar(index: index);
                       },
                       labelStyle: AppFonts.barlow(
                           fontWeight: FontWeight.w500, fontSize: 14),
@@ -194,30 +204,38 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: TabBarView(
                     controller: tabController,
                     children: [
-                      BlocConsumer<DashBoardBloc, DashBoardState>(
-                        bloc: tabBarContentBloc,
-                        buildWhen: (previous, current) =>
-                            current is DashBoardDataSuccessfullyFetchedState,
+                      BlocConsumer<DashBoardCubit, DashBoardCubitState>(
+                        bloc: tabBarContentCubit,
+                        listenWhen: (previous, current) {
+                          return current.maybeWhen(
+                            errorState: (errorMessage) => true,
+                            orElse: () => false,
+                          );
+                        },
+                        buildWhen: (previous, current) {
+                          return current.maybeWhen(
+                            dataSuccessfullyLoaded: (uploadDataEntity) => true,
+                            orElse: () => false,
+                          );
+                        },
                         builder: (context, state) {
-                          switch (state.runtimeType) {
-                            case const (DashBoardDataSuccessfullyFetchedState):
-                              final dashBoardDataSuccessState = state
-                                  as DashBoardDataSuccessfullyFetchedState;
-                              return _buildUploadsContent(
-                                  uploadData: dashBoardDataSuccessState
-                                      .uploadDataEntity);
-
-                            default:
-                              return SizedBox();
-                          }
+                          return state.maybeWhen(
+                              dataSuccessfullyLoaded: (uploadDataEntity) =>
+                                  _buildUploadsContent(
+                                      uploadData: uploadDataEntity),
+                              orElse: () => SizedBox());
                         },
                         listener: (BuildContext context, state) {
-                          switch (state.runtimeType) {
-                            case const (DashBoardFailureState):
-                              final errorMessage =
-                                  (state as DashBoardFailureState).errorMessage;
-                              showSnackBAR(context, errorMessage);
-                          }
+                          state.maybeWhen(
+                              errorState: (errorMessage) =>
+                                  showSnackBAR(context, errorMessage),
+                              orElse: () => false);
+                          // switch (state.runtimeType) {
+                          //   case const (DashBoardCubitState.errorState):
+                          //     final errorMessage =
+                          //         (state as DashBoardFailureState).errorMessage;
+                          //     showSnackBAR(context, errorMessage);
+                          // }
                         },
                       ),
                       _buildExhibitionsContent(),
