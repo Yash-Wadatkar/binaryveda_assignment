@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/domain/entity/upload_data_entity.dart';
 import 'package:dashboard_ui_assignment/features/dashboard/domain/usecase/upload_data_usecase.dart';
+import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
@@ -17,15 +18,16 @@ class DashBoardCubit extends Cubit<DashBoardCubitState> {
   /// method to get photos on dashboard
   FutureOr<void> loadDashBoardPhotos() async {
     // emit(DashBoardCubitState.loading());
+    emit(state.copyWith(uploadDataEntity: DataResource.loading()));
     final data = await uploadDataUsecase.getUploadDataUsecase();
     data.fold(
       (l) {
+        emit(state.copyWith(uploadDataEntity: DataResource.error(l.message)));
         /// if failure retrun failure state
-        emit(DashBoardCubitState.errorState(errorMessage: l.message));
       },
       (r) {
+        emit(state.copyWith(uploadDataEntity: DataResource.success(r)));
         /// if success retrun success state
-        emit(DashBoardCubitState.dataSuccessfullyLoaded(uploadDataEntity: r));
       },
     );
   }

@@ -24,8 +24,7 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen>
-    with SingleTickerProviderStateMixin {
+class _DashboardScreenState extends State<DashboardScreen> with SingleTickerProviderStateMixin {
   late DashBoardBloc tabBarContentBloc;
   late DashBoardBloc tabBarBloc;
   late DashBoardCubit tabBarCubit;
@@ -59,8 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _profileButton(
-                          icon: AppIcons.icUploadIcon, text: AppStrings.upload),
+                      _profileButton(icon: AppIcons.icUploadIcon, text: AppStrings.upload),
                       Column(
                         children: [
                           Image.asset(
@@ -78,8 +76,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                         ],
                       ),
-                      _profileButton(
-                          icon: AppIcons.icEditIcon, text: AppStrings.edit),
+                      _profileButton(icon: AppIcons.icEditIcon, text: AppStrings.edit),
                     ],
                   ),
                 ),
@@ -109,12 +106,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildStatColumn(
-                          AppStrings.noOfFollowers, AppStrings.followers),
-                      _buildStatColumn(
-                          AppStrings.noOfArtWork, AppStrings.artworks),
-                      _buildStatColumn(
-                          AppStrings.noOfExibition, AppStrings.exhibitions),
+                      _buildStatColumn(AppStrings.noOfFollowers, AppStrings.followers),
+                      _buildStatColumn(AppStrings.noOfArtWork, AppStrings.artworks),
+                      _buildStatColumn(AppStrings.noOfExibition, AppStrings.exhibitions),
                     ],
                   ),
                 ),
@@ -146,22 +140,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                 BlocBuilder<DashBoardCubit, DashBoardCubitState>(
                   bloc: tabBarCubit,
                   builder: (context, state) {
-                    final selectedIndex = state.maybeWhen(
-                      /// If state is ToggleTabBar, use its index
-                      toggleTabBar: (index) => index,
-
-                      /// Default to 0 if state is something else
-                      orElse: () => 0,
-                    );
-
-                    //   (state is ToggleTabBarState) ? state.index : 0;
-
                     return TabBar(
                       onTap: (index) {
                         tabBarCubit.toggleTabBar(index: index);
                       },
-                      labelStyle: AppFonts.barlow(
-                          fontWeight: FontWeight.w500, fontSize: 14),
+                      labelStyle: AppFonts.barlow(fontWeight: FontWeight.w500, fontSize: 14),
                       indicatorWeight: 1,
                       indicatorPadding: EdgeInsets.symmetric(vertical: 5),
                       labelColor: Colors.black,
@@ -172,26 +155,25 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         insets: EdgeInsets.symmetric(horizontal: -10),
                       ),
-                      unselectedLabelColor:
-                          AppColorPallet.unselectedTabTextColor,
+                      unselectedLabelColor: AppColorPallet.unselectedTabTextColor,
                       dividerColor: Colors.transparent,
                       controller: tabController,
                       tabs: [
                         _buildTab(
                           index: 0,
-                          selectedIndex: selectedIndex,
+                          selectedIndex: state.index,
                           text: AppStrings.uploads,
                           icon: AppIcons.icUploadIcon,
                         ),
                         _buildTab(
                           index: 1,
-                          selectedIndex: selectedIndex,
+                          selectedIndex: state.index,
                           text: AppStrings.exhibitions,
                           icon: AppIcons.icExibitionIcon,
                         ),
                         _buildTab(
                           index: 2,
-                          selectedIndex: selectedIndex,
+                          selectedIndex: state.index,
                           text: AppStrings.revenue,
                           icon: AppIcons.icRevenueIcon,
                         ),
@@ -205,39 +187,23 @@ class _DashboardScreenState extends State<DashboardScreen>
                     controller: tabController,
                     children: [
                       BlocConsumer<DashBoardCubit, DashBoardCubitState>(
-                        bloc: tabBarContentCubit,
-                        listenWhen: (previous, current) {
-                          return current.maybeWhen(
-                            errorState: (errorMessage) => true,
-                            orElse: () => false,
-                          );
-                        },
-                        buildWhen: (previous, current) {
-                          return current.maybeWhen(
-                            dataSuccessfullyLoaded: (uploadDataEntity) => true,
-                            orElse: () => false,
-                          );
-                        },
-                        builder: (context, state) {
-                          return state.maybeWhen(
-                              dataSuccessfullyLoaded: (uploadDataEntity) =>
-                                  _buildUploadsContent(
-                                      uploadData: uploadDataEntity),
-                              orElse: () => SizedBox());
-                        },
-                        listener: (BuildContext context, state) {
-                          state.maybeWhen(
-                              errorState: (errorMessage) =>
-                                  showSnackBAR(context, errorMessage),
-                              orElse: () => false);
-                          // switch (state.runtimeType) {
-                          //   case const (DashBoardCubitState.errorState):
-                          //     final errorMessage =
-                          //         (state as DashBoardFailureState).errorMessage;
-                          //     showSnackBAR(context, errorMessage);
-                          // }
-                        },
-                      ),
+                          bloc: tabBarContentCubit,
+                          listenWhen: (previous, current) {
+                            return current.uploadDataEntity.isError();
+                          },
+                          buildWhen: (previous, current) {
+                            var c1 = current.uploadDataEntity.isLoadingOrSuccess();
+                            var c2 = previous.uploadDataEntity != current.uploadDataEntity;
+                            return c1 && c2;
+                          },
+                          builder: (context, state) {
+                            return _buildUploadsContent(resource: state.uploadDataEntity);
+                          },
+                          listener: (BuildContext context, state) {
+                            if (state.uploadDataEntity.errorMessage != null) {
+                              showSnackBAR(context, state.uploadDataEntity.errorMessage ?? "");
+                            }
+                          }),
                       _buildExhibitionsContent(),
                       _buildRevenueContent(),
                     ],
@@ -271,7 +237,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   /// Builds the content for the uploads tab
-  Widget _buildUploadsContent({required List<UploadDataEntity> uploadData}) {
+  Widget _buildUploadsContent({required DataResource<List<UploadDataEntity>> resource}) {
+    var uploadData = resource.data ?? [];
+    if (resource.isLoading()) {
+      return Center(child: CircularProgressIndicator());
+    }
     return GridView.builder(
       itemCount: uploadData.length,
       shrinkWrap: true,
@@ -284,19 +254,25 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
       itemBuilder: (context, index) {
         final item = uploadData[index];
-        return CachedNetworkImage(
-          imageUrl: item.thumbnailUrl,
-          placeholder: (context, url) =>
-              Center(child: CircularProgressIndicator()),
-          errorWidget: (context, url, error) {
-            return Container(
-                decoration: BoxDecoration(color: AppColorPallet.dividerColor),
-                child: Icon(
-                  Icons.error_outline,
-                  color: Colors.grey,
-                ));
+        return BlocBuilder<DashBoardCubit, DashBoardCubitState>(
+          buildWhen: (p, c) {
+            return p.index != c.index;
           },
-          fit: BoxFit.cover,
+          builder: (context, state) {
+            return CachedNetworkImage(
+              imageUrl: item.thumbnailUrl,
+              placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) {
+                return Container(
+                    decoration: BoxDecoration(color: AppColorPallet.dividerColor),
+                    child: Icon(
+                      Icons.error_outline,
+                      color: Colors.grey,
+                    ));
+              },
+              fit: BoxFit.cover,
+            );
+          },
         );
       },
     );
@@ -332,9 +308,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       icon: SvgPicture.asset(
         icon,
         // ignore: deprecated_member_use
-        color: selectedIndex == index
-            ? Colors.black
-            : AppColorPallet.unselectedTabTextColor,
+        color: selectedIndex == index ? Colors.black : AppColorPallet.unselectedTabTextColor,
       ),
     );
   }
@@ -346,14 +320,12 @@ class _DashboardScreenState extends State<DashboardScreen>
         Text(
           number,
           overflow: TextOverflow.ellipsis,
-          style: AppFonts.barlowCondensed(
-              fontSize: 24, fontWeight: FontWeight.w300),
+          style: AppFonts.barlowCondensed(fontSize: 24, fontWeight: FontWeight.w300),
         ),
         Text(
           label,
           overflow: TextOverflow.ellipsis,
-          style: AppFonts.barlowCondensed(
-              fontSize: 14, fontWeight: FontWeight.w300),
+          style: AppFonts.barlowCondensed(fontSize: 14, fontWeight: FontWeight.w300),
         ),
       ],
     );

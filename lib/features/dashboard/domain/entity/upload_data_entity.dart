@@ -6,10 +6,11 @@ class UploadDataEntity {
   final String url;
   final String thumbnailUrl;
 
-  UploadDataEntity(
-      {required this.albumId,
-      required this.id,
-      required this.title,
-      required this.url,
-      required this.thumbnailUrl});
+  UploadDataEntity({
+    required this.albumId,
+    required this.id,
+    required this.title,
+    required this.url,
+    required this.thumbnailUrl,
+  });
 }
